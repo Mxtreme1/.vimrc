@@ -241,10 +241,6 @@ set background=dark
 colorscheme solarized
 Plugin 'altercation/vim-colors-solarized'
 
-"Airline solarized dark color scheme for status bar
-let g:airline_solarized_bg='dark'
-
-
 Plugin 'scrooloose/syntastic'
 
 " The following are examples of different formats supported.

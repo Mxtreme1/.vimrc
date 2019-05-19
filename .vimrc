@@ -1,9 +1,11 @@
 
-
 " General behavior {{{ "
 
 set nocompatible              " be iMproved, required
+
 filetype off                  " required
+
+let g:EclimCompletionMethod = "omnifunc"
 
 " Sets how many lines of history VIM has to remember
 set history=500
@@ -11,8 +13,7 @@ set history=500
 " Allow opening up to 100 files in tabs
 set tabpagemax=100
 
-set textwidth=80 " 80 char wrapping of text
-set colorcolumn=+1 " draw a red column indicating where 80 chars end
+set colorcolumn=80 " draw a red column indicating where 80 chars end
 
 " Set to auto read when a file is changed from the outside
 set autoread
@@ -22,19 +23,22 @@ set clipboard=unnamedplus
 set modeline
 set hidden
 
+syntax on
+
 " }}} General behavior "
 
 
 " Syntastic options {{{ "
 
-let g:EclimCompletionMethod = "omnifunc"
-
-let g:syntastic_python_checkers = ["flake8"]
-let g:syntastic_python_flake8_exec="/home/mr492/dotfiles/flake8.sh"
+let g:syntastic_python_checkers = ["flake8", "mypy"]
+let g:syntastic_python_flake8_exec="$DOTFILES_REPOSITORY_PATH/vim/flake8.sh"
+"let g:syntastic_python_mypy_exec="$DOTFILES_REPOSITORY_PATH/vim/mypy.sh"
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
+
+let g:ultisnips_python_style="numpy"
 
 " }}} Syntastic options "
 
@@ -90,6 +94,10 @@ endif
 " With a map leader it's possible to do extra key combinations
 let mapleader = "."
 let g:mapleader = "."
+
+" GitOpen -- shortcuts to quickly open files from current git repository {{{ "
+noremap <leader>f :GitOpen 
+" }}} GitOpen -- shortcuts to quickly open files from current git repository "
 
 
 " Tabs {{{ "
@@ -161,8 +169,10 @@ set gdefault " by default add /g to search/replace
 
 " Autodetect filetype for .tex files to allow snippets and autocomplete
 autocmd BufRead,BufNewFile *.tex :set filetype=tex
-autocmd BufRead,BufNewFile *.tex :SyntasticToggleMode
+autocmd BufRead,BufNewFile *.tex :silent :SyntasticToggleMode
 autocmd BufRead,BufNewFile *.anki_vim :set filetype=anki_vim
+au BufRead,BufNewFile *.chpl :set filetype=chpl
+
 
 " }}} Filetype autodetections (tex, anki_vim) "
 
@@ -170,7 +180,8 @@ autocmd BufRead,BufNewFile *.anki_vim :set filetype=anki_vim
 " Custom make(1) behavior (vim makeprg) {{{ "
 
 autocmd BufRead,BufNewFile :set makeprg=make -j
-autocmd BufRead,BufNewFile *.py :set makeprg=python3\ %
+autocmd BufRead,BufNewFile *.py :set makeprg=$DOTFILES_REPOSITORY_PATH/vim/pick_python.sh\ %
+
 autocmd BufRead,BufNewFile *.java :set makeprg=javac\ %
 
 " }}} Customized behavior of vim's 'make'prg "
@@ -189,18 +200,7 @@ autocmd InsertLeave * :set relativenumber!
 " }}} Line numbering "
 
 
-" TODO: replace these with something more useful in the longer run
-noremap <Up> <NOP>
-noremap <Down> <NOP>
-noremap <Left> <NOP>
-noremap <Right> <NOP>
-
-
 " Vundle Plugins {{{ "
-
-
-execute pathogen#infect()
-
 
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -211,60 +211,39 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'gmarik/Vundle.vim'
 
-" Rainbow Parantheses with enabled options
-au VimEnter * RainbowParenthesesToggle
-au Syntax * RainbowParenthesesLoadRound
-au Syntax * RainbowParenthesesLoadSquare
-au Syntax * RainbowParenthesesLoadBraces
-let g:rbpt_colorpairs = [
-    \ ['Darkblue',    'SeaGreen3'],
-    \ ['darkgray',    'DarkOrchid3'],
-    \ ['darkgreen',   'firebrick3'],
-    \ ['darkcyan',    'RoyalBlue3'],
-    \ ['darkred',     'SeaGreen3'],
-    \ ['darkmagenta', 'DarkOrchid3'],
-    \ ['brown',       'firebrick3'],
-    \ ['gray',        'RoyalBlue3'],
-    \ ['black',       'SeaGreen3'],
-    \ ['darkmagenta', 'DarkOrchid3'],
-    \ ['Darkblue',    'firebrick3'],
-    \ ['darkgreen',   'RoyalBlue3'],
-    \ ['darkcyan',    'SeaGreen3'],
-    \ ['darkred',     'DarkOrchid3'],
-    \ ['red',         'firebrick3'],
-    \ ]
-
-
-" Solarized color scheme
-syntax enable
-set background=dark
-colorscheme solarized
-Plugin 'altercation/vim-colors-solarized'
-
 Plugin 'scrooloose/syntastic'
+
+" Plugin 'nvie/vim-flake8'
+
+Plugin 'scrooloose/nerdcommenter'
+
+" Live linter
+Plugin 'w0rp/ale'
+" let g:ale_lint_on_text_changed = 'never'
+" let g:ale_lint_on_enter = 1
+
+" Seems to not be working
+Plugin 'sudar/vim-arduino-syntax'
+
+
+
+Plugin 'junegunn/seoul256.vim'
+Plugin 'junegunn/goyo.vim'
+Plugin 'junegunn/limelight.vim'
+
+Plugin 'itchyny/lightline.vim'
+
 
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo
 Plugin 'tpope/vim-fugitive'
 
-Plugin 'mbbill/undotree'
-
 Plugin 'Valloric/YouCompleteMe'
 
-Plugin 'taketwo/vim-ros'
+"Plugin 'taketwo/vim-ros'
 " plugin from http://vim-scripts.org/vim/scripts.html
 Plugin 'L9'
-
-Plugin 'Raimondi/delimitMate'
-"Auto sets Parentheses
-
-Plugin 'luochen1990/rainbow'
-let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
-"Coloured Parentheses"
-
-Plugin 'hynek/vim-python-pep8-indent'
-
 " Git plugin not hosted on GitHub
 Plugin 'git://git.wincent.com/command-t.git'
 " The sparkup vim script is in a subdirectory of this repo called vim.
@@ -275,8 +254,28 @@ Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
  Plugin 'SirVer/ultisnips'
 "
 " " Snippets are separated from the engine. Add this if you want them:
- Plugin 'honza/vim-snippets'
-Plugin 'nvie/vim-flake8'
+Plugin 'honza/vim-snippets'
+
+" Auto-Pairs Plugin () [] {} (and many more)
+Plugin 'jiangmiao/auto-pairs'
+
+"Rainbow Parentheses
+Plugin 'kien/rainbow_parentheses.vim'
+
+"Scalpel Replacer
+Plugin 'wincent/scalpel'
+
+" Rainbow Parentheses customizations {{{ "
+
+
+au VimEnter * RainbowParenthesesToggle  " Always on
+au Syntax * RainbowParenthesesLoadRound  " Load ()
+au Syntax * RainbowParenthesesLoadSquare " Load []
+au Syntax * RainbowParenthesesLoadBraces " Load <>
+
+" }}} Rainbow Parentheses customizations "
+
+let g:UltiSnipsSnippetDirectories = ['/home/mr492/.vim/bundle/vim-snippets/UltiSnips', 'UltiSnips']
 
 " " Trigger configuration. Do not use <tab> if you use
 " https://github.com/Valloric/YouCompleteMe.
@@ -302,6 +301,66 @@ filetype plugin indent on    " required
 " see :h vundle for more details or wiki for FAQ
 
 " }}} Vundle Plugins "
+
+
+" Plug Plugins {{{ "
+
+"Specify a directory for plugins
+call plug#begin('~/.vim/bundle')
+
+Plug 'junegunn/vim-plug'
+
+" Shorthand notation; fetches https://github.com/junegunn/vim-easy-align
+Plug 'junegunn/vim-easy-align'
+
+" Any valid git URL is allowed
+Plug 'https://github.com/junegunn/vim-github-dashboard.git'
+
+" Multiple Plug commands can be written in a single line using | separators
+Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
+
+" Syntax highlighting & Co. for a bunch of languages
+" Plug 'sheerun/vim-polyglot'
+
+" similar to auto pairs, but better
+Plug 'tpope/vim-surround'
+
+" Guess shiftwidth and expandtab from current file (if empty looks for one)
+" Indents 4 free
+Plug 'tpope/vim-sleuth'
+
+
+let g:srcery_italic = 1
+set termguicolors
+set t_Co=256
+
+" Srcery color scheme
+Plug 'srcery-colors/srcery-vim'
+
+Plug 'patstockwell/vim-monokai-tasty'
+
+Plug 'fatih/molokai'
+
+Plug 'aonemd/kuroi.vim'
+
+Plug 'ericbn/vim-solarized'
+
+set background=dark
+colorscheme srcery
+
+" No insert and srcery scheme for lightline
+set noshowmode
+let g:lightline = {
+      \ 'colorscheme': 'srcery',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'readonly', 'filename', 'modified', 'helloworld' ] ]
+      \ },
+      \ }
+
+" Initialize plugin system
+call plug#end()
+" }}} Plug Plugins "
 
 
 " Source vimrc {{{ "
@@ -339,7 +398,7 @@ set backupdir=~/.vim/backups
 
 
 " Undos {{{ "
-nnoremap <F5> :UndotreeToggle<cr>
+
 " Store undos in a file to be able to undo with 
 " 'infinite' horizon even after a file was closed
 " Let's save undo info!
@@ -412,12 +471,12 @@ endfunction
 " }}} Helper functions "
 
     " For python: write shebang line and make executable
-    autocmd BufNewFile *.py :call WriteShebang("\#!/usr/bin/env/python3", "\# -*- coding: iso-8859-15 -*-")
+    autocmd BufNewFile *.py :call WriteShebang("\#!/usr/bin/python3", "\# -*- coding: iso-8859-15 -*-")
+    autocmd BufNewFile *.tex :call WriteShebang("\% vim:foldmethod=marker commentstring=%%s foldmarker=<@<,>@>")
     autocmd BufNewFile *.sh :call WriteShebang("\#!/bin/sh")
     autocmd BufNewFile *.h :call WriteHeaderIfndef()
 
-
-    autocmd BufWritePost *.py,*.sh silent !chmod +x %
+    autocmd BufWritePost *.sh silent !chmod +x %
     " TODO: ADD SHEBANGS FOR RUBY, other scripting languages
 augroup END
 
@@ -425,8 +484,7 @@ augroup END
 
 
 " Folding {{{ "
-autocmd BufWinLeave *.* mkview
-autocmd BufWinEnter *.* silent loadview
+
 augroup Folding
     autocmd BufRead,BufNewFile ~/.zsh/*.zsh :setlocal foldmethod=marker
     autocmd BufRead,BufNewFile ~/.vimrc :setlocal foldmethod=marker
@@ -434,13 +492,20 @@ augroup Folding
     autocmd BufRead,BufNewFile ~/.i3/config :setlocal foldmethod=marker
     autocmd BufRead,BufNewFile ~/.i3/i3status.conf :setlocal foldmethod=marker
     autocmd BufRead,BufNewFile ~/.muttrc :setlocal foldmethod=marker
+    autocmd BufRead,BufNewFile *.py :setlocal foldmethod=marker
+augroup END
+
+augroup remember_folds
+  autocmd!
+  autocmd BufWinLeave * mkview
+  autocmd BufWinEnter * silent! loadview
 augroup END
 
 " }}} Folding "
 
 
 " Statusline Customization ----------------------------------------------- {{{
-" large parts shamelessly 'borrowed' of 'scrooloose/vimfiles' 
+" large parts shamelessly 'borrowed' from 'scrooloose/vimfiles' 
 set noruler
 set laststatus=2
 "statusline setup
@@ -469,6 +534,7 @@ set statusline+=%*
 
 " }}}
 
+
 " Delete trailing whitespace (python) {{{ "
 
 " Delete trailing white space on save, useful for Python and CoffeeScript ;)
@@ -481,3 +547,53 @@ endfunc
 autocmd BufWrite *.py :call DeleteTrailingWS()
 
 " }}} Delete trailing whitespace (python) "
+
+" :GitOpen - Open files in current git repository by regex and autocompletion {{{ "
+function! GitFiles(ArgLead, CmdLine, CursorPos)
+    let gitfiles_cwd = getcwd()
+    let gitfiles_project_root = system("git rev-parse --show-toplevel")
+    " Always cd to project root first, parse files from there and then cd back
+    let gitfiles_pattern = a:ArgLead
+    execute 'lcd' gitfiles_project_root
+    let gitfiles_all_files = systemlist("git ls-files")
+    execute 'lcd' gitfiles_cwd
+    
+" Use python to determine which gitfiles are relevant for the given a:ArgLead
+python3 << EOF
+import vim
+from re import search, compile as re_compile
+from os.path import join as path_join
+pattern = re_compile(vim.eval("gitfiles_pattern"))
+gitfiles = vim.eval("gitfiles_all_files")
+root = vim.eval("gitfiles_project_root").strip("\n")
+
+matching_files = (
+    filename for filename in gitfiles if search(pattern, filename) is not None
+)
+sorted_matches = sorted(
+    matching_files, 
+    key=lambda filename: ("docs/" in filename, 
+                          "tests/" in filename, 
+                          len(filename))
+)
+
+completions = [
+    path_join(root, filename) for filename in sorted_matches
+]
+
+vim.command("let gitfiles_matching = %s"% str(completions))
+
+EOF
+    return gitfiles_matching
+endfunction
+
+
+" Use git to find files (with autocompletion) in the current git project
+" that contain the given argument pattern
+" NOTE: Matches are sorted such that:
+" - documentation matches after regular files and tests
+" - tests match after regular files
+" - shortest filenames match first
+"command -nargs=1 -complete=customlist,GitFiles GitOpen :tabedit <args>
+
+" }}} :GitOpen - Open files in current git repository by regex and autocompletion "

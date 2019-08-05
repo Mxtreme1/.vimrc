@@ -35,7 +35,7 @@ let g:syntastic_python_flake8_exec="$DOTFILES_REPOSITORY_PATH/vim/flake8.sh"
 "let g:syntastic_python_mypy_exec="$DOTFILES_REPOSITORY_PATH/vim/mypy.sh"
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_open = 0
 let g:syntastic_check_on_wq = 0
 
 let g:ultisnips_python_style="numpy"
@@ -211,7 +211,7 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'gmarik/Vundle.vim'
 
-Plugin 'scrooloose/syntastic'
+"Plugin 'scrooloose/syntastic'
 
 " Plugin 'nvie/vim-flake8'
 
